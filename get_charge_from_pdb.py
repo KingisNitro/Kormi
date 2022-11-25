@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+
 """Code to get the charge of a protein from the PDB file.
 
-Usage: python3 get_charge_from_pdb.py <file-name>"""
+Usage: get_charge_from_pdb.py <file-name>"""
 
 from Bio.PDB import *
 from sys import argv
