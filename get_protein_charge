@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+from Bio.PDB import *
+from sys import argv
+from termcolor import colored
+
+import warnings			# getting polypeptides sometimes issues warnings for metal ions; these are suppressed
+warnings.filterwarnings("ignore")
+
+description1="A quick program to get the charge and sequence of a protein, but also in colored printing. Sequence is colored according to negatively charge (D, E), positively charged (K, R), ambiguous (C, H) and uncharged (all others) amino acids."
+description2="Usage: get_protein_charge <filename>"
+
+#load the PDB file...
+if len(argv) == 1 :  #no arguments specified
+	print(description1)
+	print(description2)
+	exit(1)
+elif len(argv) > 2:
+	print("Too many arguments!")
+	exit(1)
+
+structure = PDBParser(QUIET=True).get_structure('A', argv[1])
+pp = PPBuilder().build_peptides(structure, aa_only = False)
+print(argv[1])			# print name of input file, in case more than one is being processed, this makes it easier to identify which one is being processed
+print(f"There is a total of {len(pp)} polypeptides.")
+if len(pp) == 0:
+	print("Problem with getting the protein sequence.")
+	exit(1)
+
+def color_sequence(polypeptide):
+	sequence = polypeptide.get_sequence()
+	print("Sequence is: ", end="")
+	charge = 0
+	for i, aa in enumerate(sequence, 1):
+		if aa in ['D', 'E']:
+			charge -= 1
+			print(f"\u001b[41;1m{aa}\u001b[0m", end="")	# prints red background
+		elif aa in ['K', 'R']:
+			charge += 1
+			print(f"\u001b[44;1m{aa}\u001b[0m", end="") # prints blue background
+		elif aa in ['C', 'H']:
+			print(f"\u001b[43;1m{aa}\u001b[0m", end="") # prints yellow background
+		else:
+			print(f"{aa}\u001b[0m", end="")
+	print(f"\u001b[0m")	# reset color and get into a new line
+	print(f"Charge is  : {charge}")
+	return
+
+for i in pp:
+	color_sequence(i)
